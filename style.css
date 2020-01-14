@@ -1,0 +1,31 @@
+input {
+    width: 10em;
+}
+
+button {
+    margin: 0;
+}
+
+.center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 10px;
+}
+
+.row {
+    flex-direction: row;
+}
+
+.col {
+    flex-direction: col;
+}
+
+#output{
+    border: 2px;
+    border-style: solid;
+    width: 10em;
+    height: 2em;
+    border-radius: .5em;
+}
