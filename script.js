@@ -6,18 +6,18 @@ let currentDisplay; //variable to hold the current displayed output
 const operators = /[+\-/*=]/;
 
 //grabbing the box that displays the output
-output = document.getElementById("output");
+let output = document.getElementById("output");
 
-//adding event listeners to all the number buttons
-numberButtons = document.querySelectorAll("button");
+//adding event listeners to all the number and operator buttons
+let numberButtons = document.querySelectorAll("#inputs button");
 for (n in numberButtons){
     if (numberButtons[n].type == "button"){
         if (numberButtons[n].id == "="){
             numberButtons[n].addEventListener("click", function(){
                 inputArray.push("=");
                 parseInput();
-                currentDisplay = calculate(inputArray)[0];
-                //displayOutput();
+                inputArray = calculate(inputArray);
+                displayOutput();
             });
         } else {
             numberButtons[n].addEventListener("click", addToInput);
@@ -25,6 +25,29 @@ for (n in numberButtons){
     }
 }
 
+//adds event listener to clear button
+let clearButton = document.getElementById('clear');
+clearButton.addEventListener('click', function(){
+    inputArray = [];
+    output.innerText = 0;
+})
+
+//adds event listener to backspace button
+let backspaceButton = document.getElementById('backspace');
+backspaceButton.addEventListener('click', function(){
+    if (inputArray[inputArray.length-1].length > 1){
+        let str = inputArray[inputArray.length-1];
+        console.log(str);
+        str = str.substring(0,str.length - 1);
+        console.log(str);
+        inputArray[inputArray.length-1] = str;
+    }
+    else{
+        inputArray.pop();
+    }
+    console.log(inputArray);
+    displayOutput();
+})
 
 //adds a + b
 function add (a, b) {
@@ -99,19 +122,39 @@ function operate(a, operator, b){
 function addToInput(e){
     inputArray.push(e.target.id);
     console.log(inputArray);
-    //parseInput();
+    parseInput();
+    displayOutput();
 }
 
+
+//needs to work if there aren't any operators, should be a string instead of array
+//OOF
+
 //takes an array of individual characters and condenses numbers ie. 1,2 = 12
+// function parseInput(){
+//     let mark = 0;
+//     let x = 0;
+//     while (x < inputArray.length) {
+//         if (operators.test(inputArray[x])){ //is value at x one of +-/* etc
+//             let str = inputArray.slice(mark,x).join("");//join all values before operator
+//             inputArray.splice(mark,x-mark,str);//remove individual values and insert condensed value
+//             x = mark + 1; //sets index of x to new index of operator
+//             mark = parseInt(x)+1;//sets mark to index of first number after operator
+//         }
+//         x++;
+//     }
+//     console.log(inputArray);
+//     return inputArray;
+// }
+
 function parseInput(){
     let mark = 0;
-    let x = 0;
+    let x = 1;
     while (x < inputArray.length) {
-        if (operators.test(inputArray[x])){ //is value at x one of +-/* etc
-            let str = inputArray.slice(mark,x).join("");//join all values before operator
-            inputArray.splice(mark,x-mark,str);//remove individual values and insert condensed value
-            x = mark + 1; //sets index of x to new index of operator
-            mark = parseInt(x)+1;//sets mark to index of first number after operator
+        if (!isNaN(inputArray[x]) && !isNaN(inputArray[x-1])) {
+            inputArray.splice(x-1, 2, inputArray.slice(x-1, x+1).join(""))
+            //console.log(inputArray)
+            x--;
         }
         x++;
     }
@@ -122,6 +165,10 @@ function parseInput(){
 //takes array (eg 12,+,5,*,6) and returns an array with answer at index 0
 function calculate(arr){
     if (arr.length == 2){
+        arr.pop();
+        return arr;
+    }
+    else if (arr.length == 1){
         return arr;
     }
     let newArr = [];
@@ -156,4 +203,12 @@ function calculate(arr){
     }
     console.log(newArr);
     return calculate(newArr);
+}
+
+function displayOutput(){
+    let str = ''
+    for (x in inputArray){
+        str += inputArray[x];
+    }
+    output.innerText = str;
 }
