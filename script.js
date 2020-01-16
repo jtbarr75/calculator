@@ -1,5 +1,6 @@
 //takes in user input from button clicks, calulates and displays output
-/*to do: HANDLE ERRORS -- none known
+/*to do: HANDLE ERRORS -- values larger than the box
+    --add decimals
     --make it look better
 
     FIXED: divide by zero, multiple operators in a row, leading zeroes, operator as 
@@ -104,13 +105,13 @@ function operate(a, operator, b){
     b = parseFloat(b);
     switch (operator) {
         case "+":
-            return add(a,b);
+            return +add(a,b).toFixed(4);
         case "-":
-            return subtract(a,b);
+            return +subtract(a,b).toFixed(4);
         case "*":
-            return multiply(a,b);
+            return +multiply(a,b).toFixed(4);
         case "/":
-            return divide(a,b);
+            return +divide(a,b).toFixed(4);
     }
 }
 
@@ -119,11 +120,16 @@ function addToInput(e){
     if (inputArray[0] && String(inputArray[0]).includes("ERROR")){
         console.log(1);
         inputArray[0] = e.target.id;
-    } else if (inputArray[inputArray.length-1] == 0 && !operators.test(e.target.id)) {
+    } else if (inputArray[inputArray.length - 1] == 0 && !operators.test(e.target.id)) {
         inputArray[inputArray.length-1] = e.target.id;
+        console.log(2);
+    } else if (!inputArray[inputArray.length - 1].toString().includes(".") || e.target.id != ".") {
+        inputArray.push(e.target.id);
+        console.log(3);
     }
     else {
-        inputArray.push(e.target.id);
+        console.log(4);
+        //inputArray.push(e.target.id);
     }
     parseInput();
     displayOutput();
@@ -134,7 +140,7 @@ function parseInput(){
     let mark = 0;
     let x = 1;
     while (x < inputArray.length) {
-        if (!isNaN(inputArray[x]) && !isNaN(inputArray[x-1])) { //if this item and the next are numbers, join them
+        if (!isNaN(inputArray[x]) && (!isNaN(inputArray[x-1]) || inputArray[x-1] == ".")) { //if this item and the next are numbers, join them
             inputArray.splice(x-1, 2, inputArray.slice(x-1, x+1).join(""))
             x--;
         }
