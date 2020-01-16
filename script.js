@@ -1,7 +1,11 @@
 //takes in user input from button clicks, calulates and displays output
-//to do:
+/*to do: HANDLE ERRORS -- none known
+    --make it look better
 
-let inputArray = []; //an array to hold all the inputs
+    FIXED: divide by zero, multiple operators in a row, leading zeroes, operator as 
+    first input, hitting equals with no input/operators, backspacing too far
+*/
+let inputArray = [0]; //an array to hold all the inputs
 let currentDisplay; //variable to hold the current displayed output
 const operators = /[+\-/*=]/;
 
@@ -14,7 +18,7 @@ for (n in numberButtons){
     if (numberButtons[n].type == "button"){
         if (numberButtons[n].id == "="){
             numberButtons[n].addEventListener("click", function(){
-                inputArray.push("=");
+                //inputArray.push("=");
                 parseInput();
                 inputArray = calculate(inputArray);
                 displayOutput();
@@ -27,27 +31,11 @@ for (n in numberButtons){
 
 //adds event listener to clear button
 let clearButton = document.getElementById('clear');
-clearButton.addEventListener('click', function(){
-    inputArray = [];
-    output.innerText = 0;
-})
+clearButton.addEventListener('click', clear);
 
 //adds event listener to backspace button
 let backspaceButton = document.getElementById('backspace');
-backspaceButton.addEventListener('click', function(){
-    if (inputArray[inputArray.length-1].length > 1){
-        let str = inputArray[inputArray.length-1];
-        console.log(str);
-        str = str.substring(0,str.length - 1);
-        console.log(str);
-        inputArray[inputArray.length-1] = str;
-    }
-    else{
-        inputArray.pop();
-    }
-    console.log(inputArray);
-    displayOutput();
-})
+backspaceButton.addEventListener('click', backspace);
 
 //adds a + b
 function add (a, b) {
@@ -66,7 +54,12 @@ function multiply (a, b) {
 
 //divides a / b 
 function divide (a, b) {
-	return a / b;
+    if (b === 0){
+        return "ERROR - div by 0";
+    }
+    else{
+        return a / b;
+    }
 }
 
 //returns sum of values in array
@@ -104,6 +97,9 @@ function factorial(a) {
 
 //does given operation on a and b eg. a + b
 function operate(a, operator, b){
+    if ( isNaN(a) || isNaN(b)) {
+        return "ERROR - syntax";
+    }
     a = parseFloat(a);
     b = parseFloat(b);
     switch (operator) {
@@ -120,40 +116,26 @@ function operate(a, operator, b){
 
 //updates the output with given button presses
 function addToInput(e){
-    inputArray.push(e.target.id);
-    console.log(inputArray);
+    if (inputArray[0] && String(inputArray[0]).includes("ERROR")){
+        console.log(1);
+        inputArray[0] = e.target.id;
+    } else if (inputArray[inputArray.length-1] == 0 && !operators.test(e.target.id)) {
+        inputArray[inputArray.length-1] = e.target.id;
+    }
+    else {
+        inputArray.push(e.target.id);
+    }
     parseInput();
     displayOutput();
 }
 
-
-//needs to work if there aren't any operators, should be a string instead of array
-//OOF
-
-//takes an array of individual characters and condenses numbers ie. 1,2 = 12
-// function parseInput(){
-//     let mark = 0;
-//     let x = 0;
-//     while (x < inputArray.length) {
-//         if (operators.test(inputArray[x])){ //is value at x one of +-/* etc
-//             let str = inputArray.slice(mark,x).join("");//join all values before operator
-//             inputArray.splice(mark,x-mark,str);//remove individual values and insert condensed value
-//             x = mark + 1; //sets index of x to new index of operator
-//             mark = parseInt(x)+1;//sets mark to index of first number after operator
-//         }
-//         x++;
-//     }
-//     console.log(inputArray);
-//     return inputArray;
-// }
-
+//condenses values in inputArray ie 1,2,3 => 123
 function parseInput(){
     let mark = 0;
     let x = 1;
     while (x < inputArray.length) {
-        if (!isNaN(inputArray[x]) && !isNaN(inputArray[x-1])) {
+        if (!isNaN(inputArray[x]) && !isNaN(inputArray[x-1])) { //if this item and the next are numbers, join them
             inputArray.splice(x-1, 2, inputArray.slice(x-1, x+1).join(""))
-            //console.log(inputArray)
             x--;
         }
         x++;
@@ -168,7 +150,7 @@ function calculate(arr){
         arr.pop();
         return arr;
     }
-    else if (arr.length == 1){
+    else if (arr.length == 1 || arr.length == 0){
         return arr;
     }
     let newArr = [];
@@ -177,7 +159,12 @@ function calculate(arr){
     while (x < arr.length){
         if (!once && (arr[x] == "*" || arr[x] == "/"))
         {
-            newArr[x-1] = operate(arr[x-1],arr[x],arr[x+1]);
+            let result = operate(arr[x-1],arr[x],arr[x+1]);
+                if (result.toString().includes("ERROR")){
+                    newArr[0] = result;
+                    return newArr;
+                }
+                newArr[x-1] = result;
             x++;
             once = true;
         } else {
@@ -191,7 +178,12 @@ function calculate(arr){
         while (x < arr.length){
             if (!once && (arr[x] == "+" || arr[x] == "-"))
             {
-                newArr[x-1] = operate(arr[x-1],arr[x],arr[x+1]);
+                let result = operate(arr[x-1],arr[x],arr[x+1]);
+                if (result.toString().includes("ERROR")){
+                    newArr[0] = result;
+                    return newArr;
+                }
+                newArr[x-1] = result;
                 x++;
                 once = true;
             } else {
@@ -207,8 +199,29 @@ function calculate(arr){
 
 function displayOutput(){
     let str = ''
+    if (!inputArray[0]){
+        inputArray[0] = 0;
+    }
     for (x in inputArray){
         str += inputArray[x];
     }
     output.innerText = str;
+}
+
+function clear(){
+    inputArray = [0];
+    output.innerText = 0;
+}
+
+function backspace(){
+    if (inputArray[inputArray.length-1].length > 1){
+        let str = inputArray[inputArray.length-1];
+        str = str.substring(0,str.length - 1);
+        inputArray[inputArray.length-1] = str;
+    }
+    else{
+        inputArray.pop();
+    }
+    console.log(inputArray);
+    displayOutput();
 }
