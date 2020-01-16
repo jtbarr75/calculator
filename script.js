@@ -1,10 +1,9 @@
 //takes in user input from button clicks, calulates and displays output
-/*to do: HANDLE ERRORS -- values larger than the box
-    --add decimals
+/*to do: HANDLE ERRORS -- values larger than the box,
     --make it look better
 
     FIXED: divide by zero, multiple operators in a row, leading zeroes, operator as 
-    first input, hitting equals with no input/operators, backspacing too far
+    first input, hitting equals with no input/operators, backspacing too far, minus sign as negative number
 */
 let inputArray = [0]; //an array to hold all the inputs
 let currentDisplay; //variable to hold the current displayed output
@@ -40,17 +39,17 @@ backspaceButton.addEventListener('click', backspace);
 
 //adds a + b
 function add (a, b) {
-	return a + b;
+	return +(a + b).toFixed(4);
 }
 
 //subtracts a - b
 function subtract (a, b) {
-	return a - b;
+	return +(a - b).toFixed(4);
 }
 
 //multiplies a * b
 function multiply (a, b) {
-	return a * b;
+	return +(a * b).toFixed(4);
 }
 
 //divides a / b 
@@ -59,32 +58,10 @@ function divide (a, b) {
         return "ERROR - div by 0";
     }
     else{
-        return a / b;
+        return +(a / b).toFixed(4);
     }
 }
 
-//returns sum of values in array
-function sum (arr) {
-	let sum = 0;
-	for (num in arr){
-		sum+=arr[num];
-	}
-	return sum;
-}
-
-//returns value of all array elements multiplies together
-function multiplyArray (arr) {
-	let ans = 1;
-	for (num in arr){
-		ans*=arr[num];
-	}
-	return ans;
-}
-
-//returns a to the b power
-function power(a, b) {
-	return a**b;
-}
 
 //returns a!
 function factorial(a) {
@@ -93,7 +70,7 @@ function factorial(a) {
 	for (;a > 1; a--){
 		ans*=a-1;
 	}
-	return ans;
+	return +ans.toFixed(4);
 }
 
 //does given operation on a and b eg. a + b
@@ -105,13 +82,13 @@ function operate(a, operator, b){
     b = parseFloat(b);
     switch (operator) {
         case "+":
-            return +add(a,b).toFixed(4);
+            return add(a,b);
         case "-":
-            return +subtract(a,b).toFixed(4);
+            return subtract(a,b);
         case "*":
-            return +multiply(a,b).toFixed(4);
+            return multiply(a,b);
         case "/":
-            return +divide(a,b).toFixed(4);
+            return divide(a,b);
     }
 }
 
@@ -126,8 +103,7 @@ function addToInput(e){
     } else if (!inputArray[inputArray.length - 1].toString().includes(".") || e.target.id != ".") {
         inputArray.push(e.target.id);
         console.log(3);
-    }
-    else {
+    } else {
         console.log(4);
         //inputArray.push(e.target.id);
     }
@@ -141,8 +117,11 @@ function parseInput(){
     let x = 1;
     while (x < inputArray.length) {
         if (!isNaN(inputArray[x]) && (!isNaN(inputArray[x-1]) || inputArray[x-1] == ".")) { //if this item and the next are numbers, join them
-            inputArray.splice(x-1, 2, inputArray.slice(x-1, x+1).join(""))
+            inputArray.splice(x-1, 2, inputArray.slice(x-1, x+1).join(""));//joing xth element with (x-1)th element
             x--;
+        }
+        else if (inputArray[x] == "-" && isNaN(inputArray[x-1]) && inputArray[x+1]){ //if a minus sign follows another operator make the next number negative
+            inputArray.splice(x, 2, inputArray.slice(x, x+2).join(""));
         }
         x++;
     }
