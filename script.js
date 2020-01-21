@@ -1,5 +1,6 @@
 //takes in user input from button clicks, calulates and displays output
 /*to do: HANDLE ERRORS -- values larger than the box,
+    --convert overflowed values to e notation?
     --make it look better
 
     FIXED: divide by zero, multiple operators in a row, leading zeroes, operator as 
@@ -10,10 +11,10 @@ let currentDisplay; //variable to hold the current displayed output
 const operators = /[+\-/*=]/;
 
 //grabbing the box that displays the output
-let output = document.getElementById("output");
+let output = document.querySelector("p");
 
 //adding event listeners to all the number and operator buttons
-let numberButtons = document.querySelectorAll("#inputs button");
+let numberButtons = document.querySelectorAll(".number, .operator");
 for (n in numberButtons){
     if (numberButtons[n].type == "button"){
         if (numberButtons[n].id == "="){
@@ -95,16 +96,12 @@ function operate(a, operator, b){
 //updates the output with given button presses
 function addToInput(e){
     if (inputArray[0] && String(inputArray[0]).includes("ERROR")){
-        console.log(1);
         inputArray[0] = e.target.id;
     } else if (inputArray[inputArray.length - 1] == 0 && !operators.test(e.target.id)) {
         inputArray[inputArray.length-1] = e.target.id;
-        console.log(2);
     } else if (!inputArray[inputArray.length - 1].toString().includes(".") || e.target.id != ".") {
         inputArray.push(e.target.id);
-        console.log(3);
     } else {
-        console.log(4);
         //inputArray.push(e.target.id);
     }
     parseInput();
